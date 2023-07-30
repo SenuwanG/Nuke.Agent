@@ -12,18 +12,18 @@ def fetch_vulnerabilities(package, version):
         "addOns": "cves",
     }
 
-    response = requests.get(api_url, params=query_params)
-
-    if response.ok:
+    try:
+        response = requests.get(api_url, params=query_params)
+        response.raise_for_status()  # Raise exception for 4xx and 5xx status codes
         return response.json().get("result", {}).get("CVE_Items", [])
-    else:
-        print(f"Failed to fetch vulnerabilities for {package} version {version}")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch vulnerabilities for {package} version {version}: {e}")
         return []
 
 def check_vulnerabilities(installed_packages):
     vulnerable_packages = []
     for package_info in installed_packages:
-        package, version = package_info.split(": ")
+        package, version = package_info.split(": ", 1)  # Allow ":" in package names
         vulnerabilities = fetch_vulnerabilities(package, version)
         if vulnerabilities:
             vulnerable_packages.append((package, version, vulnerabilities))
