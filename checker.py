@@ -1,21 +1,23 @@
 import requests
-import re
 
 def load_installed_packages(filename="software_report.txt"):
     with open(filename, "r") as file:
         return [line.strip() for line in file]
 
 def fetch_vulnerabilities(package, version):
-    api_url = f"https://services.nvd.nist.gov/rest/json/cve/1.0"
+    api_url = f"https://services.nvd.nist.gov/rest/json/cves/1.0"
     query_params = {
         "cpeMatchString": f"cpe:2.3:a:{package}:{package}:{version}:*:*:*:*:*:*:*",
-        "addOns": "cves",
     }
 
     try:
         response = requests.get(api_url, params=query_params)
         response.raise_for_status()  # Raise exception for 4xx and 5xx status codes
-        return response.json().get("result", {}).get("CVE_Items", [])
+        json_data = response.json()
+        if "result" in json_data and "CVE_Items" in json_data["result"]:
+            return json_data["result"]["CVE_Items"]
+        else:
+            return []
     except requests.exceptions.RequestException as e:
         print(f"Failed to fetch vulnerabilities for {package} version {version}: {e}")
         return []
