@@ -1,3 +1,1 @@
-rpm
-fpdf
-requests
+pdfkit
