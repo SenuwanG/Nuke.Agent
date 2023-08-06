@@ -5,4 +5,4 @@ WORKDIR /app
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "script.py"]
+CMD ["python", "vulnerability_scanner.py"]
